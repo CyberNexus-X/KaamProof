@@ -1,0 +1,9 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card, Button, Field, inputClass } from "@/components/ui";
+export default function NewProject() {
+  const router = useRouter(); const [name, setName] = useState(""); const [description, setDescription] = useState(""); const [category, setCategory] = useState("Painting"); const [site, setSite] = useState(""); const [error, setError] = useState("");
+  async function submit(e: React.FormEvent) { e.preventDefault(); setError(""); const res = await fetch("/api/projects", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, description, category, site_label: site || null }) }); if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error || "Could not create project."); return; } const j = await res.json(); router.push(`/projects/${j.project.id}`); }
+  return <Card><h1 className="text-xl font-bold">Create project</h1><p className="text-sm text-slate-600">Save as a draft first, add tasks, then invite the provider.</p><form onSubmit={submit} className="mt-4 space-y-3"><Field label="Project name"><input value={name} onChange={(e) => setName(e.target.value)} className={inputClass()} /></Field><Field label="Description"><textarea value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass()} rows={3} /></Field><Field label="Category"><input value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass()} /></Field><Field label="Location / site label (optional)"><input value={site} onChange={(e) => setSite(e.target.value)} className={inputClass()} /></Field>{error && <p role="alert" className="text-sm text-red-700">{error}</p>}<Button type="submit">Create project</Button></form></Card>;
+}
